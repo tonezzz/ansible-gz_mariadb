@@ -14,4 +14,4 @@
 
 - {name: main dbs       ,when: opts_mariadb.dbs is defined      ,vars: {opts_dbs:       "{{ gz_mariadb_config.dbs       | combine(opts_mariadb.dbs,recursive=True) }}"}    ,include_tasks: dbs.yml}
 
-- {name: Fix DB ,vars: {opts_fixdb: "{{opts_mariadb.fixdb}}"} ,include_tasks: fixdb.yml }
+- {name: Fix DB ,when: opts_mariadb.fixdb is defined ,vars: {opts_fixdb: "{{opts_mariadb.fixdb}}"} ,include_tasks: fixdb.yml }

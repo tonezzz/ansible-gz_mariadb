@@ -1,0 +1,16 @@
+---
+
+- name: Stop mariadb
+  tags: [xnever]
+  ansible.builtin.service:
+    name: mariadb
+    state: stopped
+
+- name: Remove MariaDB
+  tags: [never]
+  apt:
+    pkg:
+    - mariadb-client
+    - mariadb-common
+    - mariadb-server
+    state: absent

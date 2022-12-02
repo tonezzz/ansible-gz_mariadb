@@ -1,0 +1,16 @@
+---
+
+- name: Remove users
+  when: remove.users is defined
+  loop: "{{remove.users}}"
+  community.mysql.mysql_user:
+    name: item
+    state: absent
+
+- name: Remove dbs
+  when: remove.dbs is defined
+  loop: "{{remove.dbs}}"
+  community.mysql.mysql_db:
+    name: item
+    state: absent
+  

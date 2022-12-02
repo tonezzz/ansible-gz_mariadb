@@ -1,0 +1,33 @@
+---
+
+- name: Test
+  tags: [never]
+  vars:
+    mysql_db:
+      encoding: utf8
+      name: "{{db.name}}"
+      login_user: root
+      login_unix_socket: "{{ mariadb_config.mariadb.unix_socket }}"
+      login_password: "{{root_pass}}"
+      check_implicit_admin: no
+  debug: var=mysql_db
+
+- name: Create DB ({{db.name}})
+  tags: [xnever]
+  community.mysql.mysql_db:
+    encoding: utf8
+    name: "{{db.name}}"
+    login_user: root
+    login_unix_socket: "{{ mariadb_config.mariadb.unix_socket }}"
+    login_password: "{{root_pass}}"
+    check_implicit_admin: no
+    quick: no
+
+- name: Create user
+  tags: [never]
+  community.mysql.mysql_user:
+    name: "{{db.user}}"
+    password: "{{db.pass}}"
+    priv: "{{db.name}}.*: ALL"
+    host: localhost
+    #login_unix_socket: "{{ mariadb_config.mariadb.unix_socket }}"

@@ -1,0 +1,11 @@
+---
+
+- name: Purge logs
+  community.mysql.mysql_query:
+    query: show binary logs
+
+#- name: find 2nd last log file
+#  when: args.clean_logs is defined
+#  find:
+#    path: /var/log/mysql
+#    patterns: mariadb-bin.*

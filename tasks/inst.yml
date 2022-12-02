@@ -1,0 +1,31 @@
+---
+
+- name: mariadb install
+  when: opts_inst.actions.install_mariadb
+  block:
+  #- debug: var=opts_inst
+  #- meta: end_play
+  - name: mariadb setup repo
+    vars:
+      cmd: "curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s - --mariadb-server-version=mariadb-{{opts_inst.opts.version}}"
+    shell: "{{cmd}}"
+  - name: mariadb install via apt
+    notify: [restart mariadb]
+    apt:
+      pkg:
+      - mariadb-client
+      - mariadb-server
+
+- name: Set mariadb root password
+  when: opts_inst.actions.set_root_pass
+  no_log: true
+  mysql_user:
+    login_host: localhost
+    login_user: root
+    #login_password: "{{opts_inst.opts.root_pass}}"
+    login_unix_socket: "{{ opts_inst.opts.unix_socket }}"
+    check_implicit_admin: no
+    name: root
+    password: "{{opts_inst.opts.root_pass}}"
+    priv: "*.*:ALL,GRANT"
+    state: present

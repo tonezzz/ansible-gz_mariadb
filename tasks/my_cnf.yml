@@ -1,0 +1,20 @@
+---
+
+- debug: var=opts_my_cnf
+#- meta: end_play
+
+- name: Add auto login
+  tags: [xnever ,mariadb_auto_logins]
+  when: opts_my_cnf.logins is defined
+  set_fact:
+    my_cnf_logins: "{{ my_cnf_logins | default([]) + [item | combine(gz_mariadb_config.my_cnf_login,recursive=True)] }}"
+  loop: "{{opts_my_cnf.logins}}"
+
+- debug: var=my_cnf_logins
+
+- name: my_cnf create file
+  ansible.builtin.template:
+    src: root_my.cnf.j2
+    dest: /root/.my.cnf
+    lstrip_blocks: yes
+    trim_blocks: yes

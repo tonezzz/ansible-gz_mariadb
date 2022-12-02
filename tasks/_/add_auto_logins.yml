@@ -1,0 +1,12 @@
+---
+
+- name: Add auto login
+  tags: [xnever ,mariadb_auto_logins]
+  when: args.add.auto_logins is defined
+  vars:
+    my_auto_login: "{{args.add.auto_logins}}"
+  ansible.builtin.template:
+    src: root_my.cnf.j2
+    dest: /root/.my.cnf
+    lstrip_blocks: yes
+    trim_blocks: yes

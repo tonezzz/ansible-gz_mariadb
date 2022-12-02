@@ -1,0 +1,29 @@
+---
+
+gz_mariadb_config:
+  apt:
+    inst:
+      pkg:
+      - python3-pymysql       #For DB backup
+
+  plugins:
+  - apache
+
+  email: tonezzz@hotmail.com
+
+  inst:
+    actions:
+      install_mariadb:      yes
+      set_root_pass:        yes
+      set_root_permission:  yes              #Included in set_root_pass
+    opts:
+      #root_pass: "{{LINUX_ROOT_PASS}}"
+      root_pass: "{{current_host.root_pass}}"
+      unix_socket: /run/mysqld/mysqld.sock
+      version: '10.8'
+
+  dbs: {}  #Default options for wp_sites setup
+  
+  my_cnf_login:
+    unix_socket: /run/mysqld/mysqld.sock
+  my_cnf: {}

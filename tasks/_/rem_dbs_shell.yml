@@ -1,0 +1,10 @@
+---
+
+- name: Remove DBs
+  tags: [xnever]
+  when: args.rem.dbs is defined
+  loop: "{{args.rem.dbs}}"
+  shell: >
+    mysql
+    -e "DROP DATABASE IF EXISTS {{item}} "
+  

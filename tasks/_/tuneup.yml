@@ -1,0 +1,24 @@
+---
+
+- name: Verify /etc/mysql/mariadb.conf.d
+  tags: [always]
+  stat:
+    path: /etc/mysql/mariadb.conf.d
+  register: conf_d
+  
+- debug: var=conf_d.stat
+  tags: [always]
+
+- name: Copy 80-gizmo.cnf
+  tags: [never,apply]
+  when: conf_d.stat.exists
+  copy:
+    src: 80-gizmo.cnf
+    dest: /etc/mysql/mariadb.conf.d/
+  notify: restart mariadb
+
+#- name: find 2nd last log file
+#  when: args.clean_logs is defined
+#  find:
+#    path: /var/log/mysql
+#    patterns: mariadb-bin.*

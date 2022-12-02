@@ -1,0 +1,15 @@
+{% for item in my_cnf_logins -%}
+
+[{{item.name}}]
+user		= {{item.user}}
+{% if item.unix_socket is defined %}
+  {% if item.unix_socket=='default' %}
+socket		= {{gz_mariadb_config.mariadb.unix_socket}}
+  {% else %}
+socket		= {{item.unix_socket}}
+  {% endif %}
+{% endif %}
+{% if item.pass is defined %}password 		= {{item.pass}}{% endif %}
+{% if item.port is defined %}port			= {{item.port}}{% endif %}
+
+{% endfor %}

@@ -1,0 +1,61 @@
+---
+
+#Get database size:
+#  SELECT table_schema AS "Database", ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS "Size (MB)" FROM information_schema.TABLES GROUP BY table_schema
+#Get post with strange image (R2P)
+#  SELECT * FROM `wp_posts` where guid like '%1f64c.png'
+
+- name: Clean
+  vars:
+    unix_socket: /run/mysqld/mysqld.sock
+    clean_table: never
+  block:
+  - debug: var=opts_clean
+
+  - name: Clean table
+    tags: never
+    #tags: ["{{clean_table}}"]
+    loop: "{{opts_clean.clean_items}}"
+    loop_control: {loop_var: clean_item}
+    community.mysql.mysql_info:
+      login_db: "{{clean_item.login_db}}"
+      login_host: "{{clean_item.login_host}}"
+      login_unix_socket: "{{unix_socket}}"
+      filter: databases
+      #login_user: 'root' #"{{clean_item.login_user}}"
+      #login_password: 'Love2521*' #"{{clean_item.login_password}}"
+      #query: "{{clean_item.query}}"
+      #single_transaction: "{{clean_item.single_transaction}}"
+    register: results
+  - debug: var=results
+    
+  - name: Check DB
+    tags: [never]
+    loop: "{{opts_clean.clean_items}}"
+    loop_control: {loop_var: clean_item}
+    community.mysql.mysql_info:
+      login_db: "{{clean_item.login_db}}"
+      login_host: "{{clean_item.login_host}}"
+      login_unix_socket: "{{unix_socket}}"
+      filter: databases
+      #login_user: 'root' #"{{clean_item.login_user}}"
+      #login_password: 'Love2521*' #"{{clean_item.login_password}}"
+      #query: "{{clean_item.query}}"
+      #single_transaction: "{{clean_item.single_transaction}}"
+    register: results
+  - debug: var=results
+
+  - name: Query DB
+    tags: [never]
+    loop: "{{opts_clean.clean_items}}"
+    loop_control: {loop_var: clean_item}
+    community.mysql.mysql_query:
+      login_db: "{{clean_item.login_db}}"
+      login_host: "{{clean_item.login_host}}"
+      login_user: "{{clean_item.login_user}}"
+      login_password: "{{clean_item.login_password}}"
+      query: "{{clean_item.query}}"
+      single_transaction: "{{clean_item.single_transaction}}"
+    register: results
+  - debug: var=results
+    

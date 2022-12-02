@@ -1,0 +1,104 @@
+---
+
+- name: Setup root privilege
+  tags: [xnever ,mariadb_root_priv]
+  when: args.add.root_priv is defined
+  vars:
+    cmd: >
+      mysql
+      -h localhost
+      -S {{mariadb_config.mariadb.unix_socket}}
+      -e "GRANT ALL PRIVILEGES on *.* TO 'root'@'localhost' IDENTIFIED via unix_socket WITH GRANT OPTION"
+  shell: "{{cmd}}"
+  #changed_when: false
+  #ignore_errors: true
+  #register: result
+
+- name: Vars
+  tags: [never]
+  vars:
+    cmd1: >
+      mysql
+      -h localhost
+      -S {{mariadb_config.mariadb.unix_socket}}
+      -e "alter user 'root'@'localhost' IDENTIFIED by '{{args.add.root_pass}}'"
+    cmd2: >
+      mysql
+      -h localhost
+      -S {{mariadb_config.mariadb.unix_socket}}
+      -e "ALTER USER root@localhost IDENTIFIED via unix_socket"
+  debug: var=cmd1
+
+#- debug: var=result
+
+#https://github.com/bertvv/ansible-role-mariadb/blob/master/tasks/root-password.yml
+# This command will exit non-zero when the root password was set previously
+#    -uroot -p{{ args.add.root_pass}}
+
+- name: Check if root password is unset
+  tags: [never ,mariadb_root_pass]
+  when: args.add.root_pass is defined
+  vars:
+    cmd: >
+      mysql
+      -h localhost
+      -S {{mariadb_config.mariadb.unix_socket}}
+      -e "quit"
+  shell: "{{cmd}}"
+  changed_when: false
+  ignore_errors: true
+  register: root_pwd_check
+
+- name: Setup root password
+  tags: [never ,mariadb_root_pass]
+  when: args.add.root_pass is defined
+  #no_log: true
+  mysql_user:
+    name: root
+    password: "{{args.add.root_pass}}"
+    host: localhost
+    login_unix_socket: "{{mariadb_config.mariadb.unix_socket}}"
+    login_user: root
+    #login_unix_socket: /var/lib/mysql/mysql.sock
+    #login_unix_socket: /usr/lib/systemd/system/mariadb.socket
+    #priv: '*.*:ALL,GRANT'
+    #check_implicit_admin: true
+
+- name: Authentication changes in version 10.4 message
+  tags: [never ,version_check]
+  block:
+  - name: Check version
+    community.mysql.mysql_info:
+      filter: [database ,version]
+      login_unix_socket: "{{mariadb_config.mariadb.unix_socket}}"
+      login_user: root
+      login_password: ""
+      #login_password: "{{args.add.root_pass}}"
+  - name: Message
+    tags: [never]
+    when: mariadb_version is version('10.4', '>=')
+    debug:
+      msg: >
+        Authentication has changed in version 10.4. Both the root user and
+        the user that owns the data directory (mysql by default) now utilize
+        the unix_socket plugin for passwordless access, and are created with
+        an invalid password. Therefore setting a password isn't required for
+        those user accounts accessing via the unix socket. Please see
+        https://mariadb.org/authentication-in-mariadb-10-4/ .
+        Skipping authentication setup tasks!
+
+- name: Setup root password
+  tags: [never ,mariadb_root_pass]
+  when: args.add.root_pass is defined
+  #no_log: true
+  mysql_user:
+    name: root
+    password: "{{args.add.root_pass}}"
+    login_user: root
+    #login_password: "{{args.add.root_pass}}"
+    host: localhost
+    #login_unix_socket: /var/lib/mysql/mysql.sock
+    login_unix_socket: /usr/lib/systemd/system/mariadb.socket
+    priv: '*.*:ALL,GRANT'
+    check_implicit_admin: true
+

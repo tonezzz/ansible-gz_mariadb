@@ -1,0 +1,7 @@
+---
+
+#- {name: Add apt ,when: args.add.apt is defined ,include_tasks: add_apt.yml }
+#- {name: Add mariadb ,when: args.add.mariadb is defined ,include_tasks: add_mariadb.yml }
+- {name: Add root_priv ,when: args.add.root_priv is defined ,include_tasks: add_root_priv.yml }
+- {name: Add auto_logins ,when: args.add.auto_logins is defined ,include_tasks: add_auto_logins.yml }
+- {name: Add dbs ,when: args.add.dbs is defined ,include_tasks: add_dbs.yml }

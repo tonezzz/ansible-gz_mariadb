@@ -1,0 +1,22 @@
+---
+
+- name: Create DB (
+  tags: [xnever ,mariadb_db]
+  when: db is defined
+  shell: >
+    mysql
+    -e "CREATE DATABASE {{db.name}} "
+
+- name: Create user
+  tags: [xnever]
+  when: db is defined
+  shell: >
+    mysql
+    -e "CREATE USER '{{db.user}}'@'localhost' IDENTIFIED BY '{{db.pass}}'"
+
+- name: Grant priv
+  tags: [xnever]
+  when: db is defined
+  shell: >
+    mysql
+    -e "GRANT ALL PRIVILEGES ON {{db.name}}.* TO '{{db.user}}'@'localhost'"

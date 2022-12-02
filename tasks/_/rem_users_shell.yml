@@ -1,0 +1,10 @@
+---
+
+- name: Remove users
+  tags: [xnever]
+  when: args.rem.users is defined
+  loop: "{{args.rem.users}}"
+  shell: >
+    mysql
+    -e "DROP USER {{item}} "
+  

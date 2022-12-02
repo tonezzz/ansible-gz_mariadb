@@ -1,0 +1,18 @@
+---
+
+#Get database size:
+#  SELECT table_schema AS "Database", ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS "Size (MB)" FROM information_schema.TABLES GROUP BY table_schema
+#Get post with strange image (R2P)
+#  SELECT * FROM `wp_posts` where guid like '%1f64c.png'
+
+- name: Clean
+  vars:
+    unix_socket: /run/mysqld/mysqld.sock
+    clean_table: never
+  block:
+  - debug: var=opts_clean
+
+  - name: Clean
+    loop: "{{opts_clean.clean_items}}"
+    loop_control: {loop_var: clean_item}
+    include_tasks: "clean_{{clean_item.type}}.yml"

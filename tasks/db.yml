@@ -1,0 +1,18 @@
+---
+
+- debug: var=opts_db
+
+- name: Create db
+  when: (opts_db.actions.create_db is defined) and opts_db.actions.create_db
+  community.mysql.mysql_db:
+    encoding: utf8
+    name: "{{opts_db.opts.name}}"
+
+- name: Create user
+  when: (opts_db.actions.create_user is defined) and opts_db.actions.create_user
+  community.mysql.mysql_user:
+    name: "{{opts_db.opts.user}}"
+    password: "{{opts_db.opts.pass}}"
+    priv: "{{opts_db.opts.name}}.*: ALL"
+    host: localhost
+

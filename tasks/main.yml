@@ -1,0 +1,17 @@
+---
+
+#- name: Mariadb preapre
+#  tags: [check, mariadb_check]
+#  block:
+#  - set_fact:
+#      my_opts: "{{opts_mariadb}}"
+#  - debug: var=gz_mariadb_config
+#  - debug: var=my_opts
+
+- {name: main apt       ,when: opts_mariadb.apt is defined      ,vars: {opts_apt:       "{{ gz_mariadb_config.apt       | combine(opts_mariadb.apt,recursive=True) }}"}    ,include_role: {name: gz_apt} }
+- {name: main inst      ,when: opts_mariadb.inst is defined     ,vars: {opts_inst:      "{{ gz_mariadb_config.inst      | combine(opts_mariadb.inst,recursive=True) }}"}   ,include_tasks: inst.yml}
+- {name: main my_cnf    ,when: opts_mariadb.my_cnf is defined   ,vars: {opts_my_cnf:    "{{ gz_mariadb_config.my_cnf    | combine(opts_mariadb.my_cnf,recursive=True) }}"} ,include_tasks: my_cnf.yml}
+
+- {name: main dbs       ,when: opts_mariadb.dbs is defined      ,vars: {opts_dbs:       "{{ gz_mariadb_config.dbs       | combine(opts_mariadb.dbs,recursive=True) }}"}    ,include_tasks: dbs.yml}
+
+- {name: Fix DB ,vars: {opts_fixdb: "{{opts_mariadb.fixdb}}"} ,include_tasks: fixdb.yml }

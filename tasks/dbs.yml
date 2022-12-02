@@ -1,0 +1,20 @@
+---
+
+#- debug: var=setup_item
+- debug: var=opts_dbs
+#- meta: end_play
+
+- name: Create DB
+  block:
+  - name: from wp_sites
+    when: opts_dbs.db_items is defined
+    loop: "{{opts_dbs.db_items}}"
+    loop_control: {loop_var: dbs_item}
+    vars:
+      opts_db:
+        actions: "{{opts_dbs.actions}}"
+          #create_db: yes
+          #create_user: yes
+        opts: {name: "{{dbs_item.name}}", user: "{{dbs_item.user}}", pass: "{{dbs_item.pass}}" }
+    include_tasks: db.yml
+    #debug: var=opts_db

@@ -1,0 +1,10 @@
+---
+
+- name: Add dbs
+  tags: [xnever ,mariadb_dbs]
+  when: args.add.dbs is defined
+  loop: "{{args.add.dbs}}"
+  #debug: msg={{db}}
+  include_tasks: add_db_shell.yml
+  loop_control:
+    loop_var: db

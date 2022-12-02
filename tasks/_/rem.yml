@@ -1,0 +1,4 @@
+---
+
+- {name: Rem users ,when: args.rem.users is defined ,include_tasks: rem_users_shell.yml }
+- {name: Rem dbs   ,when: args.rem.dbs is defined   ,include_tasks: rem_dbs_shell.yml }

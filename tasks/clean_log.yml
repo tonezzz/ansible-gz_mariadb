@@ -1,0 +1,43 @@
+---
+
+#Get database size:
+#  SELECT table_schema AS "Database", ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS "Size (MB)" FROM information_schema.TABLES GROUP BY table_schema
+#Get post with strange image (R2P)
+#  SELECT * FROM `wp_posts` where guid like '%1f64c.png'
+
+- name: Clean mariadb log
+  #tags: ["{{clean_log}}"]
+  block:
+  - debug: var=opts_clean
+  - name: Check bin logs
+    tags: check
+    community.mysql.mysql_query:
+        login_host: "{{opts_clean.db_host}}"
+        query: show binary logs
+        login_unix_socket: /run/mysqld/mysqld.sock
+    register: bin_logs
+  - debug: var=bin_logs
+  - name: Show size
+    vars:
+      #sum: "{{bin_logs|map(attribute='file_size')|sum}}"
+      sum: "Total binary log size = {{ bin_logs.query_result[0]|map(attribute='File_size')|sum |gz_units(t='MB',f='{:.3f}') }}MB"
+    debug: var=sum
+
+  - name: Calc log date
+    command: date +'%Y-%m-%d %T' -d "-{{opts_clean.log_days}} days"
+    register: log_date
+
+  - name: Purging
+    vars:
+      sql: PURGE BINARY LOGS BEFORE '{{log_date['stdout']}}';
+    block:
+    - debug: var=sql
+    - name: Purge log
+      when: clean is defined and clean|bool==true
+      #Staill not effective
+      community.mysql.mysql_query:
+        login_host: "{{opts_clean.db_host}}"
+        query: "{{sql}}"
+        login_unix_socket: /run/mysqld/mysqld.sock
+      register: result
+    - debug: var=result
